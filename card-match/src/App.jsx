@@ -14,6 +14,21 @@ function App() {
     updateTimer((prevState) => !prevState);
   }
 
+  function handleMatch(cardOne, cardTwo) {
+    updateGameBoard((prevState) => {
+      const newState = [...prevState.map((row) => [...row])];
+      newState[cardOne.row][cardOne.col] = {
+        ...cardOne,
+        isMatched: true,
+      };
+      newState[cardTwo.row][cardTwo.col] = {
+        ...cardTwo,
+        isMatched: true,
+      };
+      return newState;
+    });
+  }
+
   function handleGameBoardUpdate(cardObj, row, col) {
     updateGameBoard((prevState) => {
       const newState = [...prevState.map((row) => [...row])];
@@ -27,11 +42,11 @@ function App() {
     const currQueue = cardQueue.current;
     const matchIndex = currQueue.findIndex((card) => card.id === cardObj.id);
     if (matchIndex != -1) {
+      const matchedCard = currQueue[matchIndex];
       //current queue has a match.
       if (currQueue.length === 1) {
         //current queue has only one element, which is a match, so empty the queue.
         currQueue.length = 0;
-        return;
       } else {
         // current queue has a match, find card that doesn't match.
         const indexToRemove = (matchIndex + 1) % 2;
@@ -50,6 +65,10 @@ function App() {
       }
       //if match is, queue should be emptied to continue the game.
       currQueue.length = 0;
+      // delay so that card flip animation will get complete.
+      setTimeout(() => {
+        handleMatch(cardObj, matchedCard);
+      }, 600);
     } else {
       //current queue does not have a match.
       if (currQueue.length >= 2) {

@@ -40,7 +40,8 @@ export default function getInitialGameBoard() {
         id: pairs[index],
         row: row,
         col : column,
-        open: false
+        open: false,
+        isMatched: false
       });
       index++;
     }

@@ -15,23 +15,20 @@ export default function GameBoard() {
               return (
                 <li key={colIndex}>
                   <button
-                    className={`card ${col.open ? "flip" : ""}`}
+                    className={`card ${col.open ? "flip" : ""} ${
+                      col.isMatched ? "matched" : ""
+                    }`}
                     onClick={() =>
                       handleUpdateGameBoard(col, rowIndex, colIndex)
                     }
-                    disabled={col.open}
+                    disabled={col.open || col.isMatched}
                   >
                     <div className="card-inner">
                       <img
                         className="card-front"
                         src={`${imgPath}${col.id}.png`}
-                        alt=""
                       />
-                      <img
-                        className="card-back"
-                        src={imgPath + defaultImg}
-                        alt=""
-                      />
+                      <img className="card-back" src={imgPath + defaultImg} />
                     </div>
                   </button>
                 </li>
