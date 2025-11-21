@@ -15,11 +15,11 @@ export default function GameBoard() {
               return (
                 <li key={colIndex}>
                   <button
-                    className={`card ${col.open || col.matched ? "flip" : ""}`}
+                    className={`card ${col.open ? "flip" : ""}`}
                     onClick={() =>
                       handleUpdateGameBoard(col, rowIndex, colIndex)
                     }
-                    disabled={col.matched}
+                    disabled={col.open}
                   >
                     <div className="card-inner">
                       <img

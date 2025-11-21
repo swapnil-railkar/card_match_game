@@ -38,7 +38,8 @@ export default function getInitialGameBoard() {
     for (let column = 0; column < 6; column++) {
       currRow.push({
         id: pairs[index],
-        matched: false,
+        row: row,
+        col : column,
         open: false
       });
       index++;
