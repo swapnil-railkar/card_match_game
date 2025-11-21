@@ -25,39 +25,53 @@ function App() {
     });
 
     const currQueue = cardQueue.current;
-    //queue is full, close the old card.
-    if (currQueue.length == 2) {
-      // remove old card from queue.
-      const cardToClose = currQueue[0];
-      currQueue.splice(0, 1);
+    const matchIndex = currQueue.findIndex((card) => card.id === cardObj.id);
+    if (matchIndex != -1) {
+      //current queue has a match.
+      if (currQueue.length === 1) {
+        //current queue has only one element, which is a match, so empty the queue.
+        currQueue.length = 0;
+        return;
+      } else {
+        // current queue has a match, find card that doesn't match.
+        const indexToRemove = (matchIndex + 1) % 2;
+        const cardToClose = currQueue[indexToRemove];
+        currQueue.splice(indexToRemove, 1);
 
-      //close the old card.
-      updateGameBoard((prevState) => {
-        const newState = [...prevState.map((row) => [...row])];
-        newState[cardToClose.row][cardToClose.col] = {
-          ...cardToClose,
-          open: false,
-        };
-        return newState;
-      });
-    }
-
-    //check for winner
-    let lastCard = null; //assume queue is empty
-    if(currQueue.length > 0) {
-      //get the latest card in the queue.
-      lastCard = currQueue[currQueue.length - 1];
-    }
-
-    if(lastCard != null && lastCard.id === cardObj.id) {
-      //winner found, empty the queue.
+        //close the card
+        updateGameBoard((prevState) => {
+          const newState = [...prevState.map((row) => [...row])];
+          newState[cardToClose.row][cardToClose.col] = {
+            ...cardToClose,
+            open: false,
+          };
+          return newState;
+        });
+      }
+      //if match is, queue should be emptied to continue the game.
       currQueue.length = 0;
     } else {
-      //winner not found, push current card to card queue.
+      //current queue does not have a match.
+      if (currQueue.length >= 2) {
+        //queue is full.
+        // remove old card from queue.
+        const cardToClose = currQueue[0];
+        currQueue.splice(0, 1);
+
+        //close the old card.
+        updateGameBoard((prevState) => {
+          const newState = [...prevState.map((row) => [...row])];
+          newState[cardToClose.row][cardToClose.col] = {
+            ...cardToClose,
+            open: false,
+          };
+          return newState;
+        });
+      }
       currQueue.push(cardObj);
     }
-
   }
+
   const contextValue = {
     gameBoard: gameBoard,
     handleUpdateGameBoard: handleGameBoardUpdate,
