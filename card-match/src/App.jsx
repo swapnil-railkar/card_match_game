@@ -4,10 +4,13 @@ import Timer from "./components/Timer";
 import GameBoard from "./components/GameBoard";
 import { GameBoardContext } from "./store/GameBoardContext";
 import getInitialGameBoard from "./data/GameBoardInitiator";
+import Overlay from "./components/Overlay";
 
 function App() {
   const [startTimer, updateTimer] = useState(false);
   const [gameBoard, updateGameBoard] = useState(getInitialGameBoard());
+  const [showHowToPlay, updateShowHowToPlay] = useState(true);
+  const pairsFound = useRef(0);
 
   const cardQueue = useRef([]);
   function handleUpdateTimer() {
@@ -27,6 +30,11 @@ function App() {
       };
       return newState;
     });
+    const currentPairs = pairsFound.current + 1;
+    pairsFound.current = currentPairs;
+    if (currentPairs === 12) {
+      updateTimer(false);
+    }
   }
 
   function handleGameBoardUpdate(cardObj, row, col) {
@@ -89,16 +97,37 @@ function App() {
       }
       currQueue.push(cardObj);
     }
+    if (!startTimer) {
+      updateTimer(true);
+    }
   }
 
   const contextValue = {
     gameBoard: gameBoard,
     handleUpdateGameBoard: handleGameBoardUpdate,
   };
+
+  let overlayContent = (
+    <p className="how-to-play text">
+      Flip two cards at a time to find matching pairs. If the cards match, they
+      stay open, if not, they flip back. Remember the card positions and keep
+      matching pairs until the entire grid is cleared. Try to finish the game
+      before the timer runs out!
+    </p>
+  );
   return (
     <GameBoardContext.Provider value={contextValue}>
       <main className="game-container">
         <Timer timerStarted={startTimer} onTimeExpire={handleUpdateTimer} />
+        {showHowToPlay && (
+          <Overlay
+            title={"How to Play"}
+            buttonText={"PLAY"}
+            onClick={() => updateShowHowToPlay(false)}
+          >
+            {overlayContent}
+          </Overlay>
+        )}
         <GameBoard />
       </main>
     </GameBoardContext.Provider>

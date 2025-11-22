@@ -12,6 +12,12 @@
   font-family: "Poppins", sans-serif;
 }
 
+.how-to-play {
+  text-align: left;
+  font-size: x-large;
+  margin: 20px;
+}
+
 .title {
   display: flex;
   flex-direction: row;
@@ -70,6 +76,42 @@ body {
   display: inline-flex; /* makes button wrap tight around content */
   box-shadow: 0 4px 10px rgba(0,0,0,0.25);
   border-radius: 8px; /* optional */
+}
+
+.overlay {
+  position: absolute;
+  width: 70vw;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 252, 240, 0.926);
+  z-index: 1;
+  margin-top: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  border-radius: 8px; /* optional */
+}
+
+.overlay button {
+  min-width: 50%;
+  margin: 20px;
+  background-color: #e6632f;
+  border-radius: 10px;
+  border-style: none;
+  min-height: 30px;
+  font-size: x-large;
+  color: wheat;
+}
+
+.overlay h1 {
+  font-size: 6ch;
+}
+
+.overlay button:hover {
+  transform: scale(1.03);
+  transition: 0.15s ease;
+  background-color: #f14806;
 }
 
 ol {
