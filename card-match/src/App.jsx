@@ -1,20 +1,49 @@
 import { useRef, useState } from "react";
 import "./App.css";
 import Timer from "./components/Timer";
-import GameBoard from "./components/GameBoard";
 import { GameBoardContext } from "./store/GameBoardContext";
 import getInitialGameBoard from "./data/GameBoardInitiator";
 import Overlay from "./components/Overlay";
+import playerWinImg from "./assets/card-match-game-win.png";
+import playerLostImg from "./assets/card-match-game-lost.png";
+import GameBoard from "./components/GameBoard";
+import { TimerContext } from "./store/TimerContext";
+import getTimeStamps from "./data/Time";
 
+const timeStamps = ["3.00", ...getTimeStamps()];
 function App() {
-  const [startTimer, updateTimer] = useState(false);
+  const [startTimer, updateStartTimer] = useState(false);
   const [gameBoard, updateGameBoard] = useState(getInitialGameBoard());
   const [showHowToPlay, updateShowHowToPlay] = useState(true);
+  const [playerWon, updatePlyerWon] = useState(false);
+  const [playerLost, updatePlayerLost] = useState(false);
+  const [resetTimer, updateResetTimer] = useState(false);
+  const [currIndex, updateIndex] = useState(0);
   const pairsFound = useRef(0);
 
   const cardQueue = useRef([]);
-  function handleUpdateTimer() {
-    updateTimer((prevState) => !prevState);
+
+  function handleUpdateTimeStamp() {
+    if (currIndex + 1 >= timeStamps.length) {
+      updatePlayerLost(true);
+      updateStartTimer(false);
+      return;
+    }
+    updateIndex((oldIndex) => oldIndex + 1);
+  }
+
+  function handleResetTimer() {
+    updateIndex(0);
+    updateResetTimer(false);
+  }
+
+  function handleRestart() {
+    updateGameBoard(getInitialGameBoard());
+    updateStartTimer(false);
+    updatePlyerWon(false);
+    updatePlayerLost(false);
+    updateResetTimer(true);
+    pairsFound.current = 0;
   }
 
   function handleMatch(cardOne, cardTwo) {
@@ -33,11 +62,13 @@ function App() {
     const currentPairs = pairsFound.current + 1;
     pairsFound.current = currentPairs;
     if (currentPairs === 12) {
-      updateTimer(false);
+      updateStartTimer(false);
+      updatePlyerWon(true);
     }
   }
 
   function handleGameBoardUpdate(cardObj, row, col) {
+    if (playerLost || playerWon) return;
     updateGameBoard((prevState) => {
       const newState = [...prevState.map((row) => [...row])];
       newState[row][col] = {
@@ -98,34 +129,61 @@ function App() {
       currQueue.push(cardObj);
     }
     if (!startTimer) {
-      updateTimer(true);
+      updateResetTimer(false);
+      updateStartTimer(true);
     }
   }
 
-  const contextValue = {
+  const gameBoardCtx = {
     gameBoard: gameBoard,
     handleUpdateGameBoard: handleGameBoardUpdate,
   };
 
-  let overlayContent = (
-    <p className="how-to-play text">
-      Flip two cards at a time to find matching pairs. If the cards match, they
-      stay open, if not, they flip back. Remember the card positions and keep
-      matching pairs until the entire grid is cleared. Try to finish the game
-      before the timer runs out!
-    </p>
-  );
+  const timerCtx = {
+    currIndex: currIndex,
+    updateCurrentIndex: handleUpdateTimeStamp,
+    resetCurrentIndex: handleResetTimer,
+  };
+
   return (
-    <GameBoardContext.Provider value={contextValue}>
+    <GameBoardContext.Provider value={gameBoardCtx}>
       <main className="game-container">
-        <Timer timerStarted={startTimer} onTimeExpire={handleUpdateTimer} />
+        <TimerContext.Provider value={timerCtx}>
+          <Timer timerStarted={startTimer} resetIndex={resetTimer} />
+        </TimerContext.Provider>
         {showHowToPlay && (
           <Overlay
             title={"How to Play"}
             buttonText={"PLAY"}
+            playerWin={false}
             onClick={() => updateShowHowToPlay(false)}
           >
-            {overlayContent}
+            <p className="how-to-play text">
+              Flip two cards at a time to find matching pairs. If the cards
+              match, they stay open, if not, they flip back. Remember the card
+              positions and keep matching pairs until the entire grid is
+              cleared. Try to finish the game before the timer runs out!
+            </p>
+          </Overlay>
+        )}
+        {playerWon && (
+          <Overlay
+            title={"Victory!!"}
+            buttonText={"PLAY AGAIN"}
+            playerWin={true}
+            onClick={handleRestart}
+          >
+            <img src={playerWinImg} height={200} width={200} />
+          </Overlay>
+        )}
+        {playerLost && (
+          <Overlay
+            title={"Time's Up!!"}
+            buttonText={"RETRY"}
+            playerWin={false}
+            onClick={handleRestart}
+          >
+            <img src={playerLostImg} height={200} width={200} />
           </Overlay>
         )}
         <GameBoard />
