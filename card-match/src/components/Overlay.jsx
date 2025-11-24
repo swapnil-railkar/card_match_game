@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 
 export default function Overlay({
@@ -8,11 +8,21 @@ export default function Overlay({
   playerWin,
   ...props
 }) {
+  const canvasRef = useRef(null);
+
   useEffect(() => {
-    if (!playerWin) return; // run confetti only when user wins
+    if (!playerWin) return;
+
+    const myCanvas = canvasRef.current;
+
+    // Get a confetti instance that draws ONLY inside this canvas
+    const myConfetti = confetti.create(myCanvas, {
+      resize: true, // automatically resize the canvas
+      useWorker: true, // better performance
+    });
 
     // Burst confetti
-    confetti({
+    myConfetti({
       particleCount: 200,
       spread: 120,
       origin: { y: 0.6 },
@@ -23,7 +33,7 @@ export default function Overlay({
     const end = Date.now() + duration;
 
     (function frame() {
-      confetti({
+      myConfetti({
         particleCount: 5,
         spread: 70,
         origin: { x: Math.random(), y: 0 },
@@ -35,6 +45,10 @@ export default function Overlay({
   return (
     <div className="overlay-backdrop">
       <main className="overlay">
+        <canvas
+          ref={canvasRef}
+          className="overlay-confetti"
+        />
         <h1 className="app-theme text">{title}</h1>
         {children}
         <button className="text" {...props}>
