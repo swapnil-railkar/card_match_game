@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import confetti from 'canvas-confetti';
+import confetti from "canvas-confetti";
 
 export default function Overlay({
   title,
@@ -33,12 +33,14 @@ export default function Overlay({
   }, [playerWin]);
 
   return (
-    <main className="overlay">
-      <h1 className="app-theme text">{title}</h1>
-      {children}
-      <button className="text" {...props}>
-        {buttonText}
-      </button>
-    </main>
+    <div className="overlay-backdrop">
+      <main className="overlay">
+        <h1 className="app-theme text">{title}</h1>
+        {children}
+        <button className="text" {...props}>
+          {buttonText}
+        </button>
+      </main>
+    </div>
   );
 }
